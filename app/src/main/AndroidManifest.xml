@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Developed by Ji Sungbin 2024.
+  ~
+  ~ Licensed under the MIT.
+  ~ Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/main/LICENSE
+  -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:icon="@android:drawable/star_big_on"
+        android:theme="@android:style/Theme.Material.NoActionBar"
+        android:label="@string/app_name">
+
+        <activity
+            android:name="land.sungbin.replybot.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

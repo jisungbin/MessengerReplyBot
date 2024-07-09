@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Developed by Ji Sungbin 2024.
+  ~
+  ~ Licensed under the MIT.
+  ~ Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/main/LICENSE
+  -->
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
+      <option name="processCode" value="true" />
+      <option name="processLiterals" value="true" />
+      <option name="processComments" value="true" />
+    </inspection_tool>
+    <inspection_tool class="UnusedVersionCatalogEntry" enabled="false" level="WARNING" enabled_by_default="false" />
+  </profile>
+</component>
