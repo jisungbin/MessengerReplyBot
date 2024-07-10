@@ -2,7 +2,7 @@
  * Developed by Ji Sungbin 2024.
  *
  * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/main/LICENSE
+ * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
  */
 
 plugins {
@@ -33,19 +33,26 @@ android {
       excludes.add("**/*.kotlin_builtins")
     }
   }
+
+  lint {
+    disable += "ModifierParameter"
+  }
 }
 
 composeCompiler {
   enableStrongSkippingMode = true
+  enableNonSkippingGroupOptimization = true
 }
 
 dependencies {
   implementation(libs.androidx.activity)
 
-  implementation(libs.compose.material3)
   implementation(libs.compose.activity)
+  implementation(libs.compose.material3)
 
   implementation(libs.kotlin.coroutines)
+  implementation(libs.kotlin.immutableCollections)
+
   testImplementation(kotlin("test-junit5"))
   testImplementation(libs.test.kotlin.coroutines)
 }
