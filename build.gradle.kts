@@ -2,9 +2,8 @@
  * Developed by Ji Sungbin 2024.
  *
  * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/main/LICENSE
+ * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
  */
-
 
 import com.diffplug.gradle.spotless.BaseKotlinExtension
 import com.diffplug.gradle.spotless.SpotlessExtension
@@ -14,6 +13,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
   alias(libs.plugins.andriod.application) apply false
   kotlin("android") version libs.versions.kotlin.core apply false
+  kotlin("jvm") version libs.versions.kotlin.core apply false
   kotlin("plugin.compose") version libs.versions.kotlin.core apply false
   alias(libs.plugins.spotless)
   idea
@@ -79,7 +79,9 @@ allprojects {
       optIn.addAll("kotlin.OptIn", "kotlin.RequiresOptIn")
     }
   }
+}
 
+subprojects {
   tasks.withType<Test> {
     useJUnitPlatform()
     outputs.upToDateWhen { false }
