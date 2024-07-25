@@ -23,6 +23,7 @@ test-assertk = "0.28.1"
 
 [plugins]
 andriod-application = { id = "com.android.application", version.ref = "gradle-android" }
+andriod-library = { id = "com.android.library", version.ref = "gradle-android" }
 
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 

@@ -34,4 +34,8 @@ dependencyResolutionManagement {
   }
 }
 
-include(":app")
+include(
+  ":app",
+  ":engine",
+  ":engine-katalk",
+)
