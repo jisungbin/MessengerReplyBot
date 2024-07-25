@@ -52,7 +52,4 @@ dependencies {
 
   implementation(libs.kotlin.coroutines)
   implementation(libs.kotlin.immutableCollections)
-
-  testImplementation(kotlin("test-junit5"))
-  testImplementation(libs.test.kotlin.coroutines)
 }
