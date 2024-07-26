@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-  namespace = "land.sungbin.replybot"
+  namespace = "land.sungbin.replybot.engine.katalk"
   compileSdk = 34
 
   defaultConfig {
@@ -39,5 +39,9 @@ kotlin {
 }
 
 dependencies {
+  implementation(libs.androidx.core)
+  implementation(libs.kotlin.coroutines)
+
   api(projects.engine)
+  api(libs.timber)
 }
