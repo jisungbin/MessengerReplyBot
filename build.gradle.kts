@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   alias(libs.plugins.andriod.application) apply false
+  alias(libs.plugins.andriod.library) apply false
   kotlin("android") version libs.versions.kotlin.core apply false
   kotlin("jvm") version libs.versions.kotlin.core apply false
   kotlin("plugin.compose") version libs.versions.kotlin.core apply false

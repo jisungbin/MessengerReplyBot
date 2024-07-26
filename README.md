@@ -28,4 +28,8 @@
 
 ### License
 
-MIT 라이선스를 따릅니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 확인해 주세요.
+- MIT
+- GPL v3
+- LGPL v3
+
+자세한 내용은 [LICENSE](LICENSE) 파일을 확인해 주세요.
