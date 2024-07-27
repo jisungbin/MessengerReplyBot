@@ -8,12 +8,14 @@
 
     <application
         android:icon="@android:drawable/star_big_on"
-        android:theme="@android:style/Theme.Material.NoActionBar"
-        android:label="@string/app_name">
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Material">
 
         <activity
             android:name="land.sungbin.replybot.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.NoActionBar"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

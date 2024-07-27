@@ -22,7 +22,9 @@ plugins {
 
 idea {
   module {
-    excludeDirs = excludeDirs + allprojects.map { it.file(".kotlin") }
+    excludeDirs = excludeDirs
+      .plus(allprojects.map { it.file(".kotlin") })
+      .plus(rootProject.file("app/src/main/assets"))
   }
 }
 
@@ -68,7 +70,7 @@ allprojects {
     }
     format("xml") {
       target("**/*.xml")
-      targetExclude("**/build/**/*.xml", "spotless/*.xml")
+      targetExclude("**/build/**/*.xml", "spotless/*.xml", "**/drawable/*.xml")
       // Look for the first XML tag that isn't a comment (<!--) or the xml declaration (<?xml)
       licenseHeaderFile(rootProject.file("spotless/copyright.xml"), "(<[^!?])")
     }
@@ -76,7 +78,7 @@ allprojects {
 
   tasks.withType<KotlinCompile> {
     compilerOptions {
-      jvmTarget = JvmTarget.JVM_17
+      jvmTarget = JvmTarget.JVM_21
       optIn.addAll("kotlin.OptIn", "kotlin.RequiresOptIn")
     }
   }

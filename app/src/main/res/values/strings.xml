@@ -6,4 +6,12 @@
   -->
 <resources>
     <string name="app_name">ReplyBot</string>
+
+    <string name="navigation_editors">Editors</string>
+    <string name="navigation_debug">Debug</string>
+    <string name="navigation_log">Log</string>
+    <string name="navigation_settings">Settings</string>
+
+    <string name="editor_main">Main Code</string>
+    <string name="editor_test">Test Code</string>
 </resources>
