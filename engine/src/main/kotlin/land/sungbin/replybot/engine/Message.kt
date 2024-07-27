@@ -13,6 +13,9 @@ public sealed interface Message {
   public val content: String
   public val logId: Long
 
+  /** @see [EngineFactory.identifier] */
+  public val identifier: String
+
   public data class Normal(
     override val content: String,
     public val image: Source,
@@ -20,6 +23,7 @@ public sealed interface Message {
     public val sender: Profile,
     public val hasMention: Boolean,
     override val logId: Long,
+    override val identifier: String,
   ) : Message
 
   public data class Deleted(
@@ -27,6 +31,7 @@ public sealed interface Message {
     public val room: Room?,
     public val sender: String,
     override val logId: Long,
+    override val identifier: String,
   ) : Message
 
   public companion object {
@@ -37,7 +42,8 @@ public sealed interface Message {
       sender: Profile,
       hasMention: Boolean,
       logId: Long,
+      identifier: String,
     ): Normal =
-      Normal(content, image, room, sender, hasMention, logId)
+      Normal(content, image, room, sender, hasMention, logId, identifier)
   }
 }

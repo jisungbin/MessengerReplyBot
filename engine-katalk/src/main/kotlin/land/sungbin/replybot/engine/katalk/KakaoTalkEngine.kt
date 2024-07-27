@@ -32,9 +32,11 @@ import okio.Source
 // Edited by Ji Sungbin.
 
 public class KakaoTalkEngine : EngineFactory() {
+  override val identifier: String = "com.kakao.talk"
   override fun isDeletedMessageSupported(): Boolean = true
 
   override fun createNormalMessage(sbn: StatusBarNotification): Message.Normal? {
+    if (sbn.packageName != identifier) return null
     if (sbn.notification.actions.isNullOrEmpty()) return null
     if (sbn.notification.actions.all { action -> action.remoteInputs.isNullOrEmpty() })
       return null
@@ -82,10 +84,12 @@ public class KakaoTalkEngine : EngineFactory() {
       sender = sender,
       hasMention = hasMention,
       logId = logId,
+      identifier = identifier,
     )
   }
 
   override fun createDeletedMessage(sbn: StatusBarNotification): Message.Deleted? {
+    if (sbn.packageName != identifier) return null
     if (sbn.notification.extras == null) return null
     return sbn.toDeletedMessage()
   }
@@ -112,6 +116,7 @@ public class KakaoTalkEngine : EngineFactory() {
       room = room,
       sender = sender,
       logId = logId,
+      identifier = identifier,
     )
   }
 

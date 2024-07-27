@@ -10,6 +10,8 @@ package land.sungbin.replybot.engine
 import android.service.notification.StatusBarNotification
 
 public abstract class EngineFactory {
+  /** Notification을 생성한 앱의 패키지명 */
+  public abstract val identifier: String
   public abstract fun isDeletedMessageSupported(): Boolean
 
   public abstract fun createNormalMessage(sbn: StatusBarNotification): Message.Normal?
