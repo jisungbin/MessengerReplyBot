@@ -44,6 +44,7 @@ import land.sungbin.replybot.components.AppNavigationItem
 import land.sungbin.replybot.components.AppTopBar
 import land.sungbin.replybot.components.EditorTab
 import land.sungbin.replybot.components.GlobalAction
+import land.sungbin.replybot.scriptable.JavaScriptRunner
 import land.sungbin.replybot.utils.getCurrentCode
 import land.sungbin.replybot.utils.getEditorDirectory
 import okio.FileSystem
@@ -106,6 +107,11 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
+  }
+
+  override fun onDestroy() {
+    JavaScriptRunner.close()
+    super.onDestroy()
   }
 }
 

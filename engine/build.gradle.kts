@@ -39,4 +39,7 @@ kotlin {
 
 dependencies {
   api(libs.okio)
+  compileOnly(libs.javet) {
+    because("Interception annotations")
+  }
 }

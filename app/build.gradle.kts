@@ -64,4 +64,9 @@ dependencies {
   implementation(libs.kotlin.immutableCollections)
 
   implementation(libs.okio)
+
+  implementation(libs.javet)
+  implementation(libs.swc4j)
+
+  implementation(projects.engine)
 }

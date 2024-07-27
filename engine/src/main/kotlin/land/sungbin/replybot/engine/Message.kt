@@ -7,6 +7,12 @@
 
 package land.sungbin.replybot.engine
 
+import com.caoccao.javet.annotations.V8Allow
+import com.caoccao.javet.annotations.V8Convert
+import com.caoccao.javet.annotations.V8Getter
+import com.caoccao.javet.enums.V8ConversionMode
+import com.caoccao.javet.enums.V8ProxyMode
+import land.sungbin.replybot.engine.v8.V8Source
 import okio.Source
 
 public sealed interface Message {
@@ -16,22 +22,24 @@ public sealed interface Message {
   /** @see [EngineFactory.identifier] */
   public val identifier: String
 
+  @V8Convert(mode = V8ConversionMode.AllowOnly, proxyMode = V8ProxyMode.Class)
   public data class Normal(
-    override val content: String,
-    public val image: Source,
-    public val room: Room,
-    public val sender: Profile,
-    public val hasMention: Boolean,
-    override val logId: Long,
-    override val identifier: String,
+    @get:[V8Allow V8Getter] override val content: String,
+    @get:[V8Allow V8Getter] public val image: V8Source,
+    @get:[V8Allow V8Getter] public val room: Room,
+    @get:[V8Allow V8Getter] public val sender: Profile,
+    @get:[V8Allow V8Getter] public val hasMention: Boolean,
+    @get:[V8Allow V8Getter] override val logId: Long,
+    @get:[V8Allow V8Getter] override val identifier: String,
   ) : Message
 
+  @V8Convert(mode = V8ConversionMode.AllowOnly, proxyMode = V8ProxyMode.Class)
   public data class Deleted(
-    override val content: String,
-    public val room: Room?,
-    public val sender: String,
-    override val logId: Long,
-    override val identifier: String,
+    @get:[V8Allow V8Getter] override val content: String,
+    @get:[V8Allow V8Getter] public val room: Room?,
+    @get:[V8Allow V8Getter] public val sender: String,
+    @get:[V8Allow V8Getter] override val logId: Long,
+    @get:[V8Allow V8Getter] override val identifier: String,
   ) : Message
 
   public companion object {
@@ -44,6 +52,6 @@ public sealed interface Message {
       logId: Long,
       identifier: String,
     ): Normal =
-      Normal(content, image, room, sender, hasMention, logId, identifier)
+      Normal(content, V8Source(image), room, sender, hasMention, logId, identifier)
   }
 }
