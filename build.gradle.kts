@@ -78,7 +78,7 @@ allprojects {
 
   tasks.withType<KotlinCompile> {
     compilerOptions {
-      jvmTarget = JvmTarget.JVM_21
+      jvmTarget = JvmTarget.JVM_17
       optIn.addAll("kotlin.OptIn", "kotlin.RequiresOptIn")
     }
   }

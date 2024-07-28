@@ -14,12 +14,12 @@ android {
   compileSdk = 34
 
   defaultConfig {
-    minSdk = 23
+    minSdk = 24
   }
 
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
   }
 
   sourceSets {
@@ -39,7 +39,7 @@ kotlin {
 
 dependencies {
   api(libs.okio)
-  compileOnly(libs.javet) {
+  implementation(libs.javet) {
     because("Interception annotations")
   }
 }

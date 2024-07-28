@@ -25,6 +25,11 @@ enum class GlobalAction(
   val requiresCode: Boolean = false,
   val availableOn: Set<AppNavigationItem>,
 ) {
+  Reload(
+    R.drawable.ic_round_cached_24,
+    requiresCode = true,
+    availableOn = setOf(AppNavigationItem.Editors),
+  ),
   Save(
     R.drawable.ic_round_save_24,
     requiresCode = true,

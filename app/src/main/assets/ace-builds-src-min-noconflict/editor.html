@@ -22,10 +22,15 @@
 <body>
 
 <pre id="editor">
-function onMessage(message: Message) {
-  if (message.content === 'hello') {
+function onNewMessage(message: Message) {
+  if (message.content === 'hi') {
     message.replier.reply('bye!')
   }
+}
+
+function onDeletedMessage(message: Message) {
+  // const replier = message.replier
+  // if (replier !== null) replier.reply('Message deleted: ' + message.content)
 }
 </pre>
 

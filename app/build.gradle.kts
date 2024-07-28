@@ -16,13 +16,13 @@ android {
   compileSdk = 34
 
   defaultConfig {
-    minSdk = 23
+    minSdk = 24
     targetSdk = 34
   }
 
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
   }
 
   sourceSets {
@@ -55,6 +55,7 @@ kotlin {
 }
 
 dependencies {
+  implementation(libs.androidx.lifecycle.service)
   implementation(libs.androidx.activity)
 
   implementation(libs.compose.activity)
@@ -68,7 +69,6 @@ dependencies {
   implementation(libs.moshi)
 
   implementation(libs.javet)
-  implementation(libs.swc4j)
 
   implementation(projects.engine)
   implementation(projects.engineKatalk)

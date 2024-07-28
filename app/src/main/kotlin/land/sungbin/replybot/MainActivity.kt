@@ -37,6 +37,10 @@ import androidx.compose.ui.platform.LocalContext
 import com.multiplatform.webview.web.WebContent
 import com.multiplatform.webview.web.WebViewState
 import com.multiplatform.webview.web.rememberWebViewNavigator
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import land.sungbin.replybot.components.AceEditorAssetPath
 import land.sungbin.replybot.components.AppContent
 import land.sungbin.replybot.components.AppNavigationBar
@@ -48,6 +52,8 @@ import land.sungbin.replybot.configuration.AppConfiguration
 import land.sungbin.replybot.scriptable.JavaScriptRunner
 import land.sungbin.replybot.utils.getCurrentCode
 import land.sungbin.replybot.utils.getEditorDirectory
+import land.sungbin.replybot.utils.hasNotificationAccessPermission
+import land.sungbin.replybot.utils.requestNotificationAccessPermission
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
@@ -56,9 +62,18 @@ class MainActivity : ComponentActivity() {
     enableEdgeToEdge(navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT))
     super.onCreate(savedInstanceState)
     AppConfiguration.start(
+      context = applicationContext,
       fs = FileSystem.SYSTEM,
       directory = getDir("settings", MODE_PRIVATE).absolutePath.toPath(),
     )
+
+    if (!hasNotificationAccessPermission()) requestNotificationAccessPermission()
+
+    // The code runs in a Service, so it should follow the Process lifecycle.
+    @OptIn(DelicateCoroutinesApi::class)
+    GlobalScope.launch(Dispatchers.Default) {
+      JavaScriptRunner.initializeTs2Js(applicationContext)
+    }
 
     setContent {
       var navigationItem by remember { mutableStateOf<AppNavigationItem>(AppNavigationItem.Editors) }
@@ -81,11 +96,21 @@ class MainActivity : ComponentActivity() {
               current = navigationItem,
               getCurrentCode = { getCurrentCode(editorState, editorNavigator) },
               onActionClick = { action, code ->
+                fun save() {
+                  FileSystem.SYSTEM.write(editorDirectory.resolve(editorType.filename)) { writeUtf8(code) }
+                }
+
                 when (action) {
-                  GlobalAction.Save -> {
-                    println("code: $code")
-                    FileSystem.SYSTEM.write(editorDirectory.resolve(editorType.filename)) { writeUtf8(code) }
+                  GlobalAction.Reload -> {
+                    save()
+
+                    // The code runs in a Service, so it should follow the Process lifecycle.
+                    @OptIn(DelicateCoroutinesApi::class)
+                    GlobalScope.launch(Dispatchers.Default) {
+                      JavaScriptRunner.initializeMain(code)
+                    }
                   }
+                  GlobalAction.Save -> save()
                   else -> println("TODO: $action")
                 }
               },
@@ -114,11 +139,6 @@ class MainActivity : ComponentActivity() {
         }
       }
     }
-  }
-
-  override fun onDestroy() {
-    JavaScriptRunner.close()
-    super.onDestroy()
   }
 }
 

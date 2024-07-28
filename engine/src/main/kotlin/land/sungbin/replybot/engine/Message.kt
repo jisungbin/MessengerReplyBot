@@ -7,11 +7,7 @@
 
 package land.sungbin.replybot.engine
 
-import com.caoccao.javet.annotations.V8Allow
-import com.caoccao.javet.annotations.V8Convert
-import com.caoccao.javet.annotations.V8Getter
-import com.caoccao.javet.enums.V8ConversionMode
-import com.caoccao.javet.enums.V8ProxyMode
+import com.caoccao.javet.annotations.V8Property
 import land.sungbin.replybot.engine.v8.V8Source
 import okio.Source
 
@@ -22,25 +18,27 @@ public sealed interface Message {
   /** @see [EngineFactory.identifier] */
   public val identifier: String
 
-  @V8Convert(mode = V8ConversionMode.AllowOnly, proxyMode = V8ProxyMode.Class)
   public data class Normal(
-    @get:[V8Allow V8Getter] override val content: String,
-    @get:[V8Allow V8Getter] public val image: V8Source,
-    @get:[V8Allow V8Getter] public val room: Room,
-    @get:[V8Allow V8Getter] public val sender: Profile,
-    @get:[V8Allow V8Getter] public val hasMention: Boolean,
-    @get:[V8Allow V8Getter] override val logId: Long,
-    @get:[V8Allow V8Getter] override val identifier: String,
-  ) : Message
+    @get:V8Property override val content: String,
+    @get:V8Property public val image: V8Source,
+    @get:V8Property public val room: Room,
+    @get:V8Property public val sender: Profile,
+    @get:V8Property public val hasMention: Boolean,
+    @get:V8Property override val logId: Long,
+    @get:V8Property override val identifier: String,
+  ) : Message {
+    @get:V8Property public val replier: Replier = room.replier
+  }
 
-  @V8Convert(mode = V8ConversionMode.AllowOnly, proxyMode = V8ProxyMode.Class)
   public data class Deleted(
-    @get:[V8Allow V8Getter] override val content: String,
-    @get:[V8Allow V8Getter] public val room: Room?,
-    @get:[V8Allow V8Getter] public val sender: String,
-    @get:[V8Allow V8Getter] override val logId: Long,
-    @get:[V8Allow V8Getter] override val identifier: String,
-  ) : Message
+    @get:V8Property override val content: String,
+    @get:V8Property public val room: Room?,
+    @get:V8Property public val sender: String,
+    @get:V8Property override val logId: Long,
+    @get:V8Property override val identifier: String,
+  ) : Message {
+    @get:V8Property public val replier: Replier? = room?.replier
+  }
 
   public companion object {
     public operator fun invoke(

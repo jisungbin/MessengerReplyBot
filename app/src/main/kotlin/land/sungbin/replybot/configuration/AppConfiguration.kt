@@ -7,9 +7,12 @@
 
 package land.sungbin.replybot.configuration
 
+import android.content.Context
+import androidx.annotation.NonUiContext
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
+import java.io.Closeable
 import land.sungbin.replybot.engine.EngineFactory
 import land.sungbin.replybot.engine.katalk.KakaoTalkEngine
 import land.sungbin.replybot.utils.readOrDefault
@@ -17,7 +20,7 @@ import okio.FileSystem
 import okio.Path
 import okio.Path.Companion.toPath
 
-object AppConfiguration {
+object AppConfiguration : Closeable {
   // The properties with @PublishedApi should be judged as private.
 
   @PublishedApi internal lateinit var fs: FileSystem
@@ -30,14 +33,14 @@ object AppConfiguration {
   val engines: List<EngineFactory>
     field = mutableListOf()
 
-  fun start(fs: FileSystem, directory: Path) {
+  fun start(@NonUiContext context: Context, fs: FileSystem, directory: Path) {
     check(!::fs.isInitialized || !::path.isInitialized) { "AppConfiguration is already initialized" }
     this.fs = fs
     path = directory.resolve("app_configuration.json".toPath())
     fs.createDirectories(path.parent!!)
 
     // TODO consider how to add engines dynamically. Perhaps a ServiceLoader is ideal.
-    val totalEngines = listOf(KakaoTalkEngine())
+    val totalEngines = listOf(KakaoTalkEngine(context))
     val enableEngines = read(AppConfigurationKey.Engines)
     engines += totalEngines.filter { engine -> engine.identifier in enableEngines }
   }
@@ -63,5 +66,9 @@ object AppConfiguration {
     val map = adapter.fromJson(json).orEmpty().toMutableMap()
     map[key.label] = (map[key.label] as? T).writer()
     fs.write(path) { moshi.adapter<Map<String, Any>>(configurationType).toJson(this, map) }
+  }
+
+  override fun close() {
+    engines.clear()
   }
 }

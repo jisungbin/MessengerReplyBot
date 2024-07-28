@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import land.sungbin.replybot.components.EditorType
 import okio.Path
 import okio.Path.Companion.toPath
+import timber.log.Timber
 
 suspend fun WebViewState.awaitLoaded() {
   snapshotFlow { loadingState }.first { state -> state == LoadingState.Finished }
@@ -30,7 +31,7 @@ suspend fun getCurrentCode(state: WebViewState, navigator: WebViewNavigator): St
   state.awaitLoaded()
   return suspendCoroutine { cont ->
     navigator.evaluateJavaScript("editor.getValue()") { code ->
-      cont.resume(code.removeSurrounding("\""))
+      cont.resume(code.removeSurrounding("\"").also { Timber.tag("EditorCode").i("%s", it.replace("\\n", "\n")) })
     }
   }
 }
