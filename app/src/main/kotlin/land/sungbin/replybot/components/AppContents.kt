@@ -27,12 +27,12 @@ import okio.FileSystem
 
 @Composable fun AppContent(
   navigationItem: AppNavigationItem,
-  editorTab: EditorTab,
+  editorType: EditorType,
   editorState: WebViewState,
   editorNavigator: WebViewNavigator,
   fs: FileSystem = FileSystem.SYSTEM,
   modifier: Modifier = Modifier,
-  onEditorTabChange: (tab: EditorTab) -> Unit,
+  onEditorTabChange: (tab: EditorType) -> Unit,
 ) {
   val context = LocalContext.current
   val editorDirectory = getEditorDirectory()
@@ -63,11 +63,11 @@ import okio.FileSystem
     when (navigationItem) {
       AppNavigationItem.Editors -> {
         val initialCode by remember(editorDirectory, fs) {
-          derivedStateOf { fs.readOrEmpty(editorDirectory.resolve(editorTab.filename)) }
+          derivedStateOf { fs.readOrEmpty(editorDirectory.resolve(editorType.filename)) }
         }
 
         EditorsContent(
-          current = editorTab,
+          current = editorType,
           state = editorState,
           navigator = editorNavigator,
           nativeView = nativeEditor,

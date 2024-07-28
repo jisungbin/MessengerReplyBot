@@ -42,20 +42,27 @@ import land.sungbin.replybot.components.AppContent
 import land.sungbin.replybot.components.AppNavigationBar
 import land.sungbin.replybot.components.AppNavigationItem
 import land.sungbin.replybot.components.AppTopBar
-import land.sungbin.replybot.components.EditorTab
+import land.sungbin.replybot.components.EditorType
 import land.sungbin.replybot.components.GlobalAction
+import land.sungbin.replybot.configuration.AppConfiguration
 import land.sungbin.replybot.scriptable.JavaScriptRunner
 import land.sungbin.replybot.utils.getCurrentCode
 import land.sungbin.replybot.utils.getEditorDirectory
 import okio.FileSystem
+import okio.Path.Companion.toPath
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge(navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT))
     super.onCreate(savedInstanceState)
+    AppConfiguration.start(
+      fs = FileSystem.SYSTEM,
+      directory = getDir("settings", MODE_PRIVATE).absolutePath.toPath(),
+    )
+
     setContent {
       var navigationItem by remember { mutableStateOf<AppNavigationItem>(AppNavigationItem.Editors) }
-      var editorTab by remember { mutableStateOf<EditorTab>(EditorTab.Main) }
+      var editorType by remember { mutableStateOf<EditorType>(EditorType.Main) }
 
       val editorDirectory = getEditorDirectory()
       val editorState = remember {
@@ -77,7 +84,7 @@ class MainActivity : ComponentActivity() {
                 when (action) {
                   GlobalAction.Save -> {
                     println("code: $code")
-                    FileSystem.SYSTEM.write(editorDirectory.resolve(editorTab.filename)) { writeUtf8(code) }
+                    FileSystem.SYSTEM.write(editorDirectory.resolve(editorType.filename)) { writeUtf8(code) }
                   }
                   else -> println("TODO: $action")
                 }
@@ -99,10 +106,10 @@ class MainActivity : ComponentActivity() {
               .padding(padding)
               .fillMaxSize(),
             navigationItem = navigationItem,
-            editorTab = editorTab,
+            editorType = editorType,
             editorState = editorState,
             editorNavigator = editorNavigator,
-            onEditorTabChange = { editorTab = it },
+            onEditorTabChange = { editorType = it },
           )
         }
       }

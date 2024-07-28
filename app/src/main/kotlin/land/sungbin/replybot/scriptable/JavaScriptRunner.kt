@@ -1,3 +1,10 @@
+/*
+ * Developed by Ji Sungbin 2024.
+ *
+ * Licensed under the MIT.
+ * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
+ */
+
 package land.sungbin.replybot.scriptable
 
 import androidx.annotation.WorkerThread
@@ -6,6 +13,7 @@ import com.caoccao.javet.interop.V8Runtime
 import com.caoccao.javet.interop.converters.JavetProxyConverter
 import com.caoccao.javet.values.reference.V8ValueFunction
 import java.io.Closeable
+import land.sungbin.replybot.components.EditorType
 import land.sungbin.replybot.engine.Message
 
 object JavaScriptRunner : Closeable {
@@ -16,8 +24,9 @@ object JavaScriptRunner : Closeable {
     }
   }
 
-  @WorkerThread fun initializeMain(code: String) {
-    mainRuntime.getExecutor(code)
+  @WorkerThread fun initializeMain(tsCode: String) {
+    mainRuntime.resetContext()
+    mainRuntime.getExecutor(ts2js(tsCode, EditorType.Main))
       .setResourceName("main.js")
       .compileV8Script()
       .executeVoid()

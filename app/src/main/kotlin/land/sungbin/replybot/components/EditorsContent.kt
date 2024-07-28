@@ -30,7 +30,7 @@ import kotlinx.collections.immutable.toImmutableList
 import land.sungbin.replybot.R
 import land.sungbin.replybot.utils.awaitLoaded
 
-enum class EditorTab(@StringRes val label: Int, val filename: String) {
+enum class EditorType(@StringRes val label: Int, val filename: String) {
   Main(R.string.editor_main, "main.ts"),
   Test(R.string.editor_test, "test.ts"),
   ;
@@ -43,8 +43,8 @@ enum class EditorTab(@StringRes val label: Int, val filename: String) {
 // TODO apply throttle to actions clicks
 // FIXME screen flickering when switching tabs
 @Composable fun EditorsContent(
-  current: EditorTab,
-  tabs: ImmutableList<EditorTab> = remember { EditorTab.entries.toImmutableList() },
+  current: EditorType,
+  tabs: ImmutableList<EditorType> = remember { EditorType.entries.toImmutableList() },
   state: WebViewState = remember {
     WebViewState(WebContent.Url(AceEditorAssetPath)).apply {
       webSettings.supportZoom = false
@@ -54,7 +54,7 @@ enum class EditorTab(@StringRes val label: Int, val filename: String) {
   nativeView: Ref<NativeWebView> = remember { Ref() },
   initialCode: String = "",
   modifier: Modifier = Modifier,
-  onTabClick: (tab: EditorTab) -> Unit,
+  onTabClick: (tab: EditorType) -> Unit,
 ) {
   Column(modifier = modifier) {
     SecondaryTabRow(
@@ -69,7 +69,7 @@ enum class EditorTab(@StringRes val label: Int, val filename: String) {
         )
       }
     }
-    if (current == EditorTab.Main) {
+    if (current == EditorType.Main) {
       CodeEditor(
         modifier = Modifier.fillMaxSize(),
         state = state,

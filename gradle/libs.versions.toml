@@ -38,8 +38,6 @@ kotlin-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collecti
 
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "androidx-activity" }
-androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "androidx-datastore" }
-androidx-datastore-okio = { module = "androidx.datastore:datastore-core-okio", version.ref = "androidx-datastore" }
 
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }

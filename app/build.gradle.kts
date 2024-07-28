@@ -49,12 +49,13 @@ kotlin {
   compilerOptions {
     optIn.add("androidx.compose.material3.ExperimentalMaterial3Api")
   }
+  sourceSets.all {
+    languageSettings.enableLanguageFeature("ExplicitBackingFields")
+  }
 }
 
 dependencies {
   implementation(libs.androidx.activity)
-  implementation(libs.androidx.datastore.core)
-  implementation(libs.androidx.datastore.okio)
 
   implementation(libs.compose.activity)
   implementation(libs.compose.material3)
@@ -64,9 +65,11 @@ dependencies {
   implementation(libs.kotlin.immutableCollections)
 
   implementation(libs.okio)
+  implementation(libs.moshi)
 
   implementation(libs.javet)
   implementation(libs.swc4j)
 
   implementation(projects.engine)
+  implementation(projects.engineKatalk)
 }

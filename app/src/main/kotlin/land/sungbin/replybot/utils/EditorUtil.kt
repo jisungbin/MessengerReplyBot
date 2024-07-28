@@ -18,7 +18,7 @@ import com.multiplatform.webview.web.WebViewState
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.flow.first
-import land.sungbin.replybot.components.EditorTab
+import land.sungbin.replybot.components.EditorType
 import okio.Path
 import okio.Path.Companion.toPath
 
@@ -38,6 +38,6 @@ suspend fun getCurrentCode(state: WebViewState, navigator: WebViewNavigator): St
 @Composable @ReadOnlyComposable
 fun getEditorDirectory(): Path =
   LocalContext.current
-    .getDir(EditorTab.CODE_DIRECTORY_NAME, Context.MODE_PRIVATE)
+    .getDir(EditorType.CODE_DIRECTORY_NAME, Context.MODE_PRIVATE)
     .absolutePath
     .toPath()
