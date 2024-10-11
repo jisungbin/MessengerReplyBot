@@ -1,13 +1,9 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 package land.sungbin.replybot.components
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.WorkerThread
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -48,9 +44,9 @@ enum class GlobalAction(
 
 @Composable fun AppTopBar(
   current: AppNavigationItem,
-  getCurrentCode: suspend () -> String,
+  @WorkerThread getCurrentCode: suspend () -> String,
+  @WorkerThread onActionClick: (action: GlobalAction, code: String) -> Unit,
   modifier: Modifier = Modifier,
-  onActionClick: (action: GlobalAction, code: String) -> Unit,
 ) {
   val scope = rememberCoroutineScope()
 

@@ -1,10 +1,5 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 package land.sungbin.replybot.service
 
 import android.content.Intent
@@ -28,12 +23,12 @@ abstract class LifecycleNotificationListenerService : NotificationListenerServic
     super.onListenerDisconnected()
   }
 
-  @CallSuper override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+  @CallSuper override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
     dispatcher.onServicePreSuperOnStart()
     return super.onStartCommand(intent, flags, startId)
   }
 
-  @CallSuper override fun onBind(intent: Intent?): IBinder? {
+  @CallSuper override fun onBind(intent: Intent): IBinder? {
     dispatcher.onServicePreSuperOnBind()
     return super.onBind(intent)
   }

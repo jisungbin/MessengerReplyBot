@@ -1,24 +1,30 @@
 [versions]
-gradle-android = "8.5.1"
+jdk = "22"
+targetSdk = "35"
+
+gradle-android = "8.5.2"
 
 kotlin-core = "2.0.0"
-kotlin-coroutines = "1.9.0-RC" # K2
-kotlin-immutableCollections = "0.3.7"
+kotlin-coroutines = "1.9.0"
+kotlin-immutableCollections = "0.3.8"
 
+androidx-activity = "1.9.2"
 androidx-core = "1.13.1"
-androidx-lifecycle = "2.8.4"
-androidx-activity = "1.9.1"
+androidx-lifecycle = "2.8.6"
 
-compose-material3 = "1.3.0-beta05"
-compose-activity = "1.9.1"
+compose-activity = "1.9.2"
+compose-uiutil = "1.7.3"
+compose-material3 = "1.3.0"
+compose-resaca = "4.3.2"
 compose-webview = "1.9.20"
 
-okio = "3.9.0"
+okio = "3.9.1"
 okhttp = "5.0.0-alpha.14"
 moshi = "1.15.1"
 timber = "5.0.1"
 
 javet = "3.1.4"
+swc4j = "1.1.0"
 
 spotless = "6.25.0"
 ktlint = "1.3.1"
@@ -35,12 +41,14 @@ spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 kotlin-immutableCollections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlin-immutableCollections" }
 
+androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "androidx-activity" }
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "androidx-core" }
 androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidx-lifecycle" }
-androidx-activity = { module = "androidx.activity:activity-ktx", version.ref = "androidx-activity" }
 
-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 compose-activity = { module = "androidx.activity:activity-compose", version.ref = "compose-activity" }
+compose-uiutil = { module = "androidx.compose.ui:ui-util", version.ref = "compose-uiutil" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+compose-resaca = { module = "io.github.sebaslogen:resaca", version.ref = "compose-resaca" }
 compose-webview = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "compose-webview" }
 
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
@@ -49,6 +57,7 @@ moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 javet = { module = "com.caoccao.javet:javet-android-v8", version.ref = "javet" }
+swc4j = { module = "com.caoccao.javet:swc4j-android", version.ref = "swc4j" }
 
 test-assertk = { module = "com.willowtreeapps.assertk:assertk", version.ref = "test-assertk" }
 test-kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlin-coroutines" }

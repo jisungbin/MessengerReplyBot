@@ -1,10 +1,5 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 plugins {
   id("com.android.application")
   kotlin("android")
@@ -13,16 +8,16 @@ plugins {
 
 android {
   namespace = "land.sungbin.replybot"
-  compileSdk = 34
+  compileSdk = 35
 
   defaultConfig {
     minSdk = 24
-    targetSdk = 34
+    targetSdk = libs.versions.targetSdk.get().toInt()
   }
 
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.toVersion(libs.versions.jdk.get().toInt())
+    targetCompatibility = JavaVersion.toVersion(libs.versions.jdk.get().toInt())
   }
 
   sourceSets {
@@ -33,10 +28,6 @@ android {
     resources {
       excludes.add("**/*.kotlin_builtins")
     }
-  }
-
-  lint {
-    disable += "ModifierParameter"
   }
 }
 
@@ -55,11 +46,13 @@ kotlin {
 }
 
 dependencies {
-  implementation(libs.androidx.lifecycle.service)
   implementation(libs.androidx.activity)
+  implementation(libs.androidx.lifecycle.service)
 
   implementation(libs.compose.activity)
+  implementation(libs.compose.uiutil)
   implementation(libs.compose.material3)
+  implementation(libs.compose.resaca)
   implementation(libs.compose.webview)
 
   implementation(libs.kotlin.coroutines)
@@ -69,6 +62,7 @@ dependencies {
   implementation(libs.moshi)
 
   implementation(libs.javet)
+  implementation(libs.swc4j)
 
   implementation(projects.engine)
   implementation(projects.engineKatalk)

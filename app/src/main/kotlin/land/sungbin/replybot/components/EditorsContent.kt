@@ -1,10 +1,5 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 package land.sungbin.replybot.components
 
 import androidx.annotation.StringRes
@@ -25,10 +20,11 @@ import com.multiplatform.webview.web.WebContent
 import com.multiplatform.webview.web.WebViewNavigator
 import com.multiplatform.webview.web.WebViewState
 import com.multiplatform.webview.web.rememberWebViewNavigator
+import com.sebaslogen.resaca.rememberScoped
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import land.sungbin.replybot.R
-import land.sungbin.replybot.utils.awaitLoaded
+import land.sungbin.replybot.util.awaitLoaded
 
 enum class EditorType(@StringRes val label: Int, val filename: String) {
   Main(R.string.editor_main, "main.ts"),
@@ -37,6 +33,7 @@ enum class EditorType(@StringRes val label: Int, val filename: String) {
 
   companion object {
     const val CODE_DIRECTORY_NAME = "editors"
+    val Default = EditorType.entries.toImmutableList()
   }
 }
 
@@ -44,8 +41,9 @@ enum class EditorType(@StringRes val label: Int, val filename: String) {
 // FIXME screen flickering when switching tabs
 @Composable fun EditorsContent(
   current: EditorType,
-  tabs: ImmutableList<EditorType> = remember { EditorType.entries.toImmutableList() },
-  state: WebViewState = remember {
+  modifier: Modifier = Modifier,
+  tabs: ImmutableList<EditorType> = EditorType.Default,
+  state: WebViewState = rememberScoped {
     WebViewState(WebContent.Url(AceEditorAssetPath)).apply {
       webSettings.supportZoom = false
     }
@@ -53,7 +51,6 @@ enum class EditorType(@StringRes val label: Int, val filename: String) {
   navigator: WebViewNavigator = rememberWebViewNavigator(),
   nativeView: Ref<NativeWebView> = remember { Ref() },
   initialCode: String = "",
-  modifier: Modifier = Modifier,
   onTabClick: (tab: EditorType) -> Unit,
 ) {
   Column(modifier = modifier) {
@@ -88,8 +85,8 @@ enum class EditorType(@StringRes val label: Int, val filename: String) {
   state: WebViewState,
   navigator: WebViewNavigator,
   nativeView: Ref<NativeWebView>,
-  initialCode: String = "",
   modifier: Modifier = Modifier,
+  initialCode: String = "",
 ) {
   LaunchedEffect(initialCode, state, navigator) {
     if (initialCode.isBlank()) return@LaunchedEffect

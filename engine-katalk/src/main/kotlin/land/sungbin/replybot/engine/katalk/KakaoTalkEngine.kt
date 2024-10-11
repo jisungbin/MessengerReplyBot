@@ -1,12 +1,8 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 package land.sungbin.replybot.engine.katalk
 
+import android.app.Notification
 import android.app.Person
 import android.app.RemoteInput
 import android.content.Context
@@ -14,85 +10,93 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.text.SpannableString
 import androidx.annotation.NonUiContext
 import androidx.core.app.NotificationCompat
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicLong
 import land.sungbin.replybot.engine.EngineFactory
 import land.sungbin.replybot.engine.Message
 import land.sungbin.replybot.engine.Profile
 import land.sungbin.replybot.engine.Replier
 import land.sungbin.replybot.engine.Room
-import land.sungbin.replybot.engine.utils.EmptySource
+import land.sungbin.replybot.engine.v8.V8Source
 import okio.Buffer
 import okio.Source
 import timber.log.Timber
 
 // Copied from...
-//  - https://github.com/mooner1022/StarLight/blob/d327b2d10f6cfd617b80d360fbdc81b578297bcf/app/src/main/java/dev/mooner/starlight/listener/specs/AndroidRParserSpec.kt
 //  - https://github.com/mooner1022/StarLight/blob/a107d4fe11ed4fcc449ec8af781a80abd133b1fa/app/src/main/java/dev/mooner/starlight/listener/NotificationListener.kt
+//  - https://github.com/mooner1022/StarLight/blob/d327b2d10f6cfd617b80d360fbdc81b578297bcf/app/src/main/java/dev/mooner/starlight/listener/specs/AndroidRParserSpec.kt
 //
-// Edited by Ji Sungbin.
+// GPL-3.0 License.
+// Original code designed and developed by 2021 mooner1022 (Minki Moon).
+
+// Modified by Ji Sungbin.
 
 public class KakaoTalkEngine(@NonUiContext private val context: Context) : EngineFactory() {
-  private val latestRepliedMessageLogId = ConcurrentHashMap<String, AtomicLong>()
+  override val identifier: String get() = "com.kakao.talk"
 
-  override val identifier: String = "com.kakao.talk"
-  override fun isDeletedMessageSupported(): Boolean = true
-
-  override fun createNormalMessage(sbn: StatusBarNotification): Message.Normal? {
-    if (sbn.packageName != identifier) return null
-    if (sbn.notification.actions?.size != 2) return null
-    if (sbn.notification.actions.all { action -> action.remoteInputs.isNullOrEmpty() }) {
-      Timber.tag(TAG).w("[createNormalMessage] ''$identifier' remoteInputs are null or empty.")
+  override fun createMessage(sbn: StatusBarNotification): Message? {
+    if (sbn.packageName != identifier) {
+      Timber.tag(TAG).w(
+        "[createNormalMessage] '$identifier' is not matched. (sbn.packageName = %s)",
+        sbn.packageName,
+      )
       return null
     }
 
-    val extras = sbn.notification.extras?.takeUnless { it.isEmpty } ?: run {
+    if (sbn.notification.actions?.size != 2) {
+      Timber.tag(TAG).w(
+        "[createNormalMessage] '$identifier' sbn.notification.actions?.size (= %s) is not 2.",
+        sbn.notification.actions?.size,
+      )
+      return null
+    }
+
+    if (sbn.notification.actions.all { action -> action.remoteInputs.isNullOrEmpty() }) {
+      Timber.tag(TAG).w("[createNormalMessage] '$identifier' all remoteInputs are null or empty.")
+      return null
+    }
+
+    val extras = sbn.notification.extras?.takeUnless(Bundle::isEmpty) ?: run {
       Timber.tag(TAG).w("[createNormalMessage] ''$identifier' extras are null or empty.")
       return null
     }
 
     val message = extras.getCharSequence(NotificationCompat.EXTRA_TEXT).toString()
     val messages = extras.getParcelableArrayCompat<Bundle>(NotificationCompat.EXTRA_MESSAGES)
+    val messageLogId = extras.getLong("chatLogId")
+
+    val hasMention = extras.getCharSequence(NotificationCompat.EXTRA_TEXT) is SpannableString
 
     val senderName = extras.getString(NotificationCompat.EXTRA_TITLE).toString()
     val senderObject = messages?.first()?.getParcelableCompat<Person>("sender_person")
     val senderId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) senderObject?.key else null
 
+    val roomId = sbn.tag
     val roomName = extras.getString(NotificationCompat.EXTRA_SUB_TEXT)
       ?: extras.getString(NotificationCompat.EXTRA_SUMMARY_TEXT)
       ?: senderName
-    val roomId = sbn.tag
-
     val isGroupChat = roomName != senderName
-    val hasMention = extras.getCharSequence(NotificationCompat.EXTRA_TEXT) is SpannableString
-
-    val messageLogId = extras.getLong("chatLogId")
 
     val profileBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) senderObject?.icon?.getBitmap() else null
     val imageBitmap = extras.getBundle("android.wearable.EXTENSIONS")?.getParcelableCompat<Bitmap>("background")
-
-    val replier = sbn.getReplier(roomId = roomId, messageId = messageLogId)
 
     val room = Room(
       id = roomId,
       name = roomName,
       isGroupChat = isGroupChat,
-      replier = replier,
+      replier = sbn.replier(),
     )
     val sender = Profile(
       name = senderName,
       id = senderId,
-      picture = profileBitmap?.toSource() ?: EmptySource,
+      picture = profileBitmap?.toSource()?.let(::V8Source) ?: V8Source.Empty,
     )
 
     return Message(
       content = message,
-      image = imageBitmap?.toSource() ?: EmptySource,
+      image = imageBitmap?.toSource()?.let(::V8Source) ?: V8Source.Empty,
       room = room,
       sender = sender,
       hasMention = hasMention,
@@ -104,50 +108,27 @@ public class KakaoTalkEngine(@NonUiContext private val context: Context) : Engin
       }
   }
 
-  override fun createDeletedMessage(sbn: StatusBarNotification, reason: Int): Message.Deleted? {
-    if (!isDeletedMessageSupported()) return null
-    if (sbn.packageName != identifier) return null
-    if (sbn.notification.actions?.size != 2) return null
-    if (reason != NotificationListenerService.REASON_APP_CANCEL) return null
-    return sbn.toDeletedMessage()
-      .takeIf { message ->
-        val room = message.room
-        if (room != null) latestRepliedMessageLogId[room.id]?.get() != message.logId
-        else true
+  private fun Bitmap.toSource(): Source =
+    Buffer().apply { compress(CompressFormatCompat.WebpOrPng(), /* quality = */ 100, outputStream()) }
+
+  private fun StatusBarNotification.replier(): Replier {
+    var readAction: Notification.Action? = null
+    var sendAction: Notification.Action? = null
+
+    notification.actions.forEach { action ->
+      val title = action.title.toString()
+      when {
+        title.contains(ACTION_READ_TITLE) -> readAction = action
+        title.contains(ACTION_REPLY_TITLE) -> sendAction = action
       }
-      ?.also { Timber.tag(TAG).i("[createDeletedMessage] Created a deleted message: %s", it) }
-  }
+    }
 
-  private fun Bitmap.toSource(): Source {
-    val buffer = Buffer()
-    compress(CompressFormatCompat.WebpOrPng(), /* quality = */ 100, buffer.outputStream())
-    return buffer
-  }
-
-  private fun StatusBarNotification.toDeletedMessage(): Message.Deleted {
-    val extras = notification.extras!!
-
-    val message = extras.getString(NotificationCompat.EXTRA_TEXT).toString()
-    val sender = extras.getString(NotificationCompat.EXTRA_TITLE).toString()
-
-    val roomId = tag
-    val room = Room.findRoomById(roomId)
-
-    val messageLogId = extras.getLong("chatLogId")
-
-    return Message.Deleted(
-      content = message,
-      room = room,
-      sender = sender,
-      logId = messageLogId,
-      identifier = identifier,
-    )
-  }
-
-  private fun StatusBarNotification.getReplier(roomId: String, messageId: Long): Replier {
-    val (readAction, sendAction) = notification.actions
+    if (readAction == null && sendAction == null)
+      return Replier.Unavailable
 
     fun send(message: String): Result<Unit> = runCatching {
+      if (sendAction == null) error("sendAction is null.")
+
       val results = sendAction.remoteInputs.fold(Bundle()) { acc, input ->
         acc.apply { putCharSequence(input.resultKey, message) }
       }
@@ -155,24 +136,31 @@ public class KakaoTalkEngine(@NonUiContext private val context: Context) : Engin
         RemoteInput.addResultsToIntent(sendAction.remoteInputs, this, results)
       }
       sendAction.actionIntent.send(context, /* code = */ 0, sendingIntent)
-
-      latestRepliedMessageLogId.putIfAbsent(roomId, AtomicLong())
-      latestRepliedMessageLogId[roomId]!!.set(messageId)
     }
 
     fun read(): Result<Unit> = runCatching {
+      if (readAction == null) error("readAction is null.")
       readAction.actionIntent.send(context, /* code = */ 1, /* intent = */ null)
     }
 
     return object : Replier {
       override fun markAsRead(): Boolean = read().isSuccess
-      override fun markAsRead(room: String): Boolean = Room.findRoomByName(room)?.replier?.markAsRead() == true
+      override fun markAsRead(room: String): Boolean =
+        Room.findRoomByName(room)?.replier?.markAsRead() == true
+
       override fun reply(message: String): Boolean = send(message).isSuccess
-      override fun reply(room: String, message: String): Boolean = Room.findRoomByName(room)?.replier?.reply(message) == true
+      override fun reply(room: String, message: String): Boolean =
+        Room.findRoomByName(room)?.replier?.reply(message) == true
+
+      override fun toString(): String = REPLIER_NAME + "@" + hashCode().toString(16)
     }
   }
 
-  private companion object {
-    val TAG = KakaoTalkEngine::class.simpleName!!
+  public companion object {
+    private val TAG = KakaoTalkEngine::class.simpleName!!
+    private const val REPLIER_NAME = "KakaoTalkReplier"
+
+    private val ACTION_REPLY_TITLE = Regex("reply|답장", RegexOption.IGNORE_CASE)
+    private val ACTION_READ_TITLE = Regex("read|읽음", RegexOption.IGNORE_CASE)
   }
 }

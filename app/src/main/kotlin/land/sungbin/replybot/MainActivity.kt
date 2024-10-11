@@ -1,10 +1,5 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 package land.sungbin.replybot
 
 import android.graphics.Color
@@ -27,16 +22,15 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.multiplatform.webview.web.WebContent
 import com.multiplatform.webview.web.WebViewState
 import com.multiplatform.webview.web.rememberWebViewNavigator
+import com.sebaslogen.resaca.rememberScoped
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -49,43 +43,43 @@ import land.sungbin.replybot.components.AppTopBar
 import land.sungbin.replybot.components.EditorType
 import land.sungbin.replybot.components.GlobalAction
 import land.sungbin.replybot.configuration.AppConfiguration
-import land.sungbin.replybot.scriptable.JavaScriptRunner
-import land.sungbin.replybot.utils.getCurrentCode
-import land.sungbin.replybot.utils.getEditorDirectory
-import land.sungbin.replybot.utils.hasNotificationAccessPermission
-import land.sungbin.replybot.utils.requestNotificationAccessPermission
+import land.sungbin.replybot.scriptable.ScriptRunner
+import land.sungbin.replybot.util.getCurrentCode
+import land.sungbin.replybot.util.getEditorDirectory
+import land.sungbin.replybot.util.hasNotificationAccessPermission
+import land.sungbin.replybot.util.requestNotificationAccessPermission
 import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toPath
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     enableEdgeToEdge(navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT))
     super.onCreate(savedInstanceState)
+
     AppConfiguration.start(
       context = applicationContext,
       fs = FileSystem.SYSTEM,
-      directory = getDir("settings", MODE_PRIVATE).absolutePath.toPath(),
+      directory = getDir(SETTINGS_DIRECTORY, MODE_PRIVATE).absolutePath.toPath(),
     )
 
     if (!hasNotificationAccessPermission()) requestNotificationAccessPermission()
 
-    // The code runs in a Service, so it should follow the Process lifecycle.
-    @OptIn(DelicateCoroutinesApi::class)
-    GlobalScope.launch(Dispatchers.Default) {
-      JavaScriptRunner.initializeTs2Js(applicationContext)
-    }
-
     setContent {
-      var navigationItem by remember { mutableStateOf<AppNavigationItem>(AppNavigationItem.Editors) }
-      var editorType by remember { mutableStateOf<EditorType>(EditorType.Main) }
+      val (navigationItem, updateNavigationItem) = rememberScoped { mutableStateOf<AppNavigationItem>(AppNavigationItem.Editors) }
+      val (editorType, updateEditorType) = rememberScoped { mutableStateOf<EditorType>(EditorType.Main) }
 
       val editorDirectory = getEditorDirectory()
-      val editorState = remember {
+      val editorState = rememberScoped {
         WebViewState(WebContent.Url(AceEditorAssetPath)).apply {
           webSettings.supportZoom = false
         }
       }
       val editorNavigator = rememberWebViewNavigator()
+
+      LaunchedEffect(Unit) {
+        editorState.getCurrentCode(editorNavigator).let(::initializeMain)
+      }
 
       MaterialTheme(colorScheme = dynamicThemeScheme()) {
         Scaffold(
@@ -94,23 +88,14 @@ class MainActivity : ComponentActivity() {
             AppTopBar(
               modifier = Modifier.fillMaxWidth(),
               current = navigationItem,
-              getCurrentCode = { getCurrentCode(editorState, editorNavigator) },
+              getCurrentCode = { editorState.getCurrentCode(editorNavigator) },
               onActionClick = { action, code ->
-                fun save() {
-                  FileSystem.SYSTEM.write(editorDirectory.resolve(editorType.filename)) { writeUtf8(code) }
-                }
-
                 when (action) {
                   GlobalAction.Reload -> {
-                    save()
-
-                    // The code runs in a Service, so it should follow the Process lifecycle.
-                    @OptIn(DelicateCoroutinesApi::class)
-                    GlobalScope.launch(Dispatchers.Default) {
-                      JavaScriptRunner.initializeMain(code)
-                    }
+                    editorType.saveCode(code, editorDirectory)
+                    initializeMain(code)
                   }
-                  GlobalAction.Save -> save()
+                  GlobalAction.Save -> editorType.saveCode(code, editorDirectory)
                   else -> println("TODO: $action")
                 }
               },
@@ -122,7 +107,7 @@ class MainActivity : ComponentActivity() {
                 .imePadding()
                 .fillMaxWidth(),
               selected = navigationItem,
-              onItemSelected = { navigationItem = it },
+              onItemSelected = updateNavigationItem,
             )
           },
         ) { padding ->
@@ -134,10 +119,38 @@ class MainActivity : ComponentActivity() {
             editorType = editorType,
             editorState = editorState,
             editorNavigator = editorNavigator,
-            onEditorTabChange = { editorType = it },
+            onEditorTabChange = updateEditorType,
           )
         }
       }
+    }
+  }
+
+  companion object {
+    private const val SETTINGS_DIRECTORY = "settings"
+  }
+}
+
+private fun EditorType.saveCode(
+  code: String,
+  editorDirectory: Path,
+) {
+  // Suppresses code save failures caused by the lifecycle termination.
+  @OptIn(DelicateCoroutinesApi::class)
+  GlobalScope.launch(Dispatchers.IO) {
+    FileSystem.SYSTEM.write(editorDirectory.resolve(filename)) {
+      writeUtf8(code)
+    }
+  }
+}
+
+private fun initializeMain(code: String) {
+  // The code runs in a Service, so it should follow the Process lifecycle.
+  @OptIn(DelicateCoroutinesApi::class)
+  GlobalScope.launch(Dispatchers.Default) {
+    ScriptRunner.initializeMain(code).onFailure {
+      it.printStackTrace()
+      println(it)
     }
   }
 }

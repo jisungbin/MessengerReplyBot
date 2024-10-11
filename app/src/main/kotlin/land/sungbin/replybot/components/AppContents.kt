@@ -1,10 +1,5 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 package land.sungbin.replybot.components
 
 import android.webkit.WebChromeClient
@@ -15,14 +10,17 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalContext
 import com.multiplatform.webview.web.NativeWebView
 import com.multiplatform.webview.web.WebViewNavigator
 import com.multiplatform.webview.web.WebViewState
-import land.sungbin.replybot.utils.getEditorDirectory
-import land.sungbin.replybot.utils.readOrEmpty
+import com.sebaslogen.resaca.rememberScoped
+import land.sungbin.replybot.util.getEditorDirectory
+import land.sungbin.replybot.util.readOrEmpty
+import okio.BufferedSource
 import okio.FileSystem
 
 @Composable fun AppContent(
@@ -30,11 +28,12 @@ import okio.FileSystem
   editorType: EditorType,
   editorState: WebViewState,
   editorNavigator: WebViewNavigator,
-  fs: FileSystem = FileSystem.SYSTEM,
   modifier: Modifier = Modifier,
+  fs: FileSystem = FileSystem.SYSTEM,
   onEditorTabChange: (tab: EditorType) -> Unit,
 ) {
   val context = LocalContext.current
+  val editorType by rememberUpdatedState(editorType)
   val editorDirectory = getEditorDirectory()
   val nativeEditor = remember { Ref<NativeWebView>() }
 
@@ -62,8 +61,10 @@ import okio.FileSystem
   ) {
     when (navigationItem) {
       AppNavigationItem.Editors -> {
-        val initialCode by remember(editorDirectory, fs) {
-          derivedStateOf { fs.readOrEmpty(editorDirectory.resolve(editorType.filename)) }
+        val initialCode by rememberScoped(editorDirectory) {
+          derivedStateOf {
+            fs.readOrEmpty(editorDirectory.resolve(editorType.filename)).use(BufferedSource::readUtf8)
+          }
         }
 
         EditorsContent(

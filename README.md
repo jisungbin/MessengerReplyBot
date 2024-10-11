@@ -7,7 +7,7 @@
 ```typescript
 function onNewMessage(message: Message) {
   if (message.content === 'hi') {
-    message.replier.reply('bye!')
+    message.reply('bye!')
   }
 }
 ```
@@ -25,7 +25,7 @@ function onNewMessage(message: Message) {
 
 ### License
 
-- MIT
+- Apache License 2.0
 - GPL v3
 
 자세한 내용은 [LICENSE](LICENSE) 파일을 확인해 주세요.

@@ -24,13 +24,13 @@
 <pre id="editor">
 function onNewMessage(message: Message) {
   if (message.content === 'hi') {
-    message.replier.reply('bye!')
+    const result = message.reply('bye!')
+    logger.debug(`onNewMessage: ${result}`)
   }
-}
-
-function onDeletedMessage(message: Message) {
-  // const replier = message.replier
-  // if (replier !== null) replier.reply('Message deleted: ' + message.content)
+  if (message.content === 'dump') {
+    const result = message.reply(message.dump())
+    logger.debug(`onNewMessage: ${result}`)
+  }
 }
 </pre>
 

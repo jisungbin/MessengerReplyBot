@@ -1,13 +1,10 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 import com.diffplug.gradle.spotless.BaseKotlinExtension
 import com.diffplug.gradle.spotless.SpotlessExtension
+import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinTopLevelExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -22,9 +19,7 @@ plugins {
 
 idea {
   module {
-    excludeDirs = excludeDirs
-      .plus(allprojects.map { it.file(".kotlin") })
-      .plus(rootProject.file("app/src/main/assets"))
+    excludeDirs = excludeDirs + rootProject.file("app/src/main/assets")
   }
 }
 
@@ -45,6 +40,8 @@ allprojects {
           "ktlint_standard_backing-property-naming" to "disabled",
           "ktlint_standard_class-signature" to "disabled",
           "ktlint_standard_import-ordering" to "disabled",
+          "ktlint_standard_blank-line-before-declaration" to "disabled",
+          "ktlint_standard_spacing-between-declarations-with-annotations" to "disabled",
           "ktlint_standard_max-line-length" to "disabled",
           "ktlint_standard_annotation" to "disabled",
           "ktlint_standard_multiline-if-else" to "disabled",
@@ -65,21 +62,27 @@ allprojects {
       target("**/*.kts")
       targetExclude("**/build/**/*.kts", "spotless/*.kts")
       useKtlint()
-      // Look for the first line that doesn't have a block comment (assumed to be the license)
-      licenseHeaderFile(rootProject.file("spotless/copyright.kts"), "(^(?![\\/ ]\\*).*$)")
+      licenseHeaderFile(
+        rootProject.file("spotless/copyright.kts"),
+        "(@file|import|plugins|buildscript|dependencies|pluginManagement|dependencyResolutionManagement)",
+      )
     }
     format("xml") {
       target("**/*.xml")
-      targetExclude("**/build/**/*.xml", "spotless/*.xml", "**/drawable/*.xml")
-      // Look for the first XML tag that isn't a comment (<!--) or the xml declaration (<?xml)
+      targetExclude("**/build/**/*.xml", "spotless/*.xml", ".idea/**/*.xml")
       licenseHeaderFile(rootProject.file("spotless/copyright.xml"), "(<[^!?])")
     }
   }
 
   tasks.withType<KotlinCompile> {
     compilerOptions {
-      jvmTarget = JvmTarget.JVM_17
-      optIn.addAll("kotlin.OptIn", "kotlin.RequiresOptIn")
+      jvmTarget = JvmTarget.fromTarget(rootProject.libs.versions.jdk.get())
+      optIn.addAll(
+        "kotlin.OptIn",
+        "kotlin.RequiresOptIn",
+        "kotlin.ExperimentalStdlibApi",
+        "kotlin.contracts.ExperimentalContracts",
+      )
     }
   }
 }
@@ -89,8 +92,14 @@ subprojects {
     useJUnitPlatform()
     outputs.upToDateWhen { false }
   }
+
+  afterEvaluate {
+    extensions.configure<KotlinTopLevelExtension> {
+      jvmToolchain(rootProject.libs.versions.jdk.get().toInt())
+    }
+  }
 }
 
 tasks.register<Delete>("cleanAll") {
-  allprojects.map { project -> project.layout.buildDirectory }.forEach(::delete)
+  delete(*allprojects.map { project -> project.layout.buildDirectory }.toTypedArray())
 }

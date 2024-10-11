@@ -1,10 +1,5 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 plugins {
   id("com.android.library")
   kotlin("android")
@@ -12,15 +7,15 @@ plugins {
 
 android {
   namespace = "land.sungbin.replybot.engine.katalk"
-  compileSdk = 34
+  compileSdk = libs.versions.targetSdk.get().toInt()
 
   defaultConfig {
     minSdk = 24
   }
 
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.toVersion(libs.versions.jdk.get().toInt())
+    targetCompatibility = JavaVersion.toVersion(libs.versions.jdk.get().toInt())
   }
 
   sourceSets {

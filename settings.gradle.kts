@@ -1,10 +1,5 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 @file:Suppress("UnstableApiUsage")
 
 rootProject.name = "MessengerReplyBot"
@@ -14,23 +9,38 @@ enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 
 pluginManagement {
   repositories {
+    gradlePluginPortal()
     google {
-      content {
-        includeGroupByRegex("com\\.android.*")
-        includeGroupByRegex("com\\.google.*")
-        includeGroupByRegex("androidx.*")
+      mavenContent {
+        includeGroupByRegex(".*google.*")
+        includeGroupByRegex(".*android.*")
       }
     }
-    mavenCentral()
-    gradlePluginPortal()
+    mavenCentral {
+      mavenContent {
+        releasesOnly()
+      }
+    }
+    mavenLocal()
   }
 }
 
 dependencyResolutionManagement {
-  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+  repositoriesMode = RepositoriesMode.FAIL_ON_PROJECT_REPOS
   repositories {
-    google()
-    mavenCentral()
+    google {
+      mavenContent {
+        includeGroupByRegex(".*google.*")
+        includeGroupByRegex(".*android.*")
+        releasesOnly()
+      }
+    }
+    mavenCentral {
+      mavenContent {
+        releasesOnly()
+      }
+    }
+    mavenLocal()
   }
 }
 

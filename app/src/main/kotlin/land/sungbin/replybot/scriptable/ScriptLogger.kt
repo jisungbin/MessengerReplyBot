@@ -1,10 +1,5 @@
-/*
- * Developed by Ji Sungbin 2024.
- *
- * Licensed under the MIT.
- * Please see full license: https://github.com/jisungbin/MessengerReplyBot/blob/trunk/LICENSE
- */
-
+// Copyright 2024 Ji Sungbin
+// SPDX-License-Identifier: Apache-2.0
 package land.sungbin.replybot.scriptable
 
 import com.caoccao.javet.annotations.V8Function
@@ -30,5 +25,10 @@ class ScriptLogger(private val tag: String) : IJavetLogger {
 
   @V8Function override fun error(message: String?, cause: Throwable?) {
     Timber.tag(tag).e(cause, message)
+  }
+
+  companion object {
+    val Main = ScriptLogger("main.js") // for public usage
+    val V8Runner = ScriptLogger("v8-runner") // for v8 host
   }
 }
