@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
   modifier: Modifier = Modifier,
 ) {
   when (navigationItem) {
-    AppNavigationItem.Editors -> {
+    AppNavigationItem.Dashboard -> {
       EditorsContent(
         modifier = modifier,
         current = editorType,
