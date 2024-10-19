@@ -8,7 +8,7 @@ kotlin-core = "2.0.0"
 kotlin-coroutines = "1.9.0"
 kotlin-immutableCollections = "0.3.8"
 
-androidx-activity = "1.9.3"
+androidx-activity = "1.10.0-alpha02"
 androidx-core = "1.13.1"
 androidx-lifecycle = "2.8.6"
 
