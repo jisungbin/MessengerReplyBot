@@ -13,7 +13,7 @@ androidx-core = "1.13.1"
 androidx-lifecycle = "2.9.0-alpha05"
 
 compose-activity = "1.10.0-alpha02"
-compose-uiutil = "1.7.4"
+compose-uiutil = "1.8.0-alpha04"
 compose-material3 = "1.4.0-alpha02"
 compose-resaca = "4.3.3"
 compose-webview = "1.9.40-alpha03"
