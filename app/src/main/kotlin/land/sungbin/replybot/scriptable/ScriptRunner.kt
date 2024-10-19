@@ -7,10 +7,8 @@ import com.caoccao.javet.interop.V8Host
 import com.caoccao.javet.interop.V8Runtime
 import com.caoccao.javet.interop.converters.JavetProxyConverter
 import com.caoccao.javet.swc4j.Swc4j
-import com.caoccao.javet.swc4j.enums.Swc4jEsVersion
 import com.caoccao.javet.swc4j.enums.Swc4jMediaType
 import com.caoccao.javet.swc4j.enums.Swc4jSourceMapOption
-import com.caoccao.javet.swc4j.options.Swc4jTransformOptions
 import com.caoccao.javet.swc4j.options.Swc4jTranspileOptions
 import com.caoccao.javet.values.reference.V8ValueFunction
 import java.io.Closeable
@@ -24,27 +22,20 @@ object ScriptRunner : Closeable {
   private val TAG = ScriptRunner::class.simpleName!!
 
   private val swc by lazy { Swc4j() }
-  private val proxyConverter by lazy { JavetProxyConverter() }
-
-  // Ensures ES3 compatibility.
-  private val tsLoweringOptions = Swc4jTransformOptions()
-    .setMinify(false)
-    .setSpecifier(URL("file:///ts-main.ts"))
-    .setMediaType(Swc4jMediaType.TypeScript)
-    .setSourceMap(Swc4jSourceMapOption.None)
-    .setTarget(Swc4jEsVersion.ES3)
 
   private val ts2jsOptions = Swc4jTranspileOptions()
-    .setSpecifier(URL("file:///ts-main.ts"))
+    .setSpecifier(URL("file:///$MAIN_SCRIPT_NAME.ts"))
     .setMediaType(Swc4jMediaType.TypeScript)
     .setSourceMap(Swc4jSourceMapOption.None)
 
   private val mainRuntime by lazy {
     V8Host.getV8Instance().createV8Runtime<V8Runtime>().also { runtime ->
       runtime.logger = ScriptLogger.V8Runner
-      runtime.converter = proxyConverter
+      runtime.converter = JavetProxyConverter()
     }
   }
+
+  private const val MAIN_SCRIPT_NAME = "main.js"
 
   @WorkerThread suspend fun initializeMain(code: String): Result<Unit> = suspendCoroutine { cont ->
     runCatching {
@@ -55,19 +46,15 @@ object ScriptRunner : Closeable {
       } catch (_: NullPointerException) {
       }
 
-      val loweredTs = swc.transform(code, tsLoweringOptions).code
-      Timber.tag(TAG).i("Lowered TypeScript:\n%s", loweredTs)
-
-      val jsMainCode = swc.transpile(loweredTs, ts2jsOptions).code
-      Timber.tag(TAG).i("Transpiled JavaScript:\n%s", jsMainCode)
+      val transpiledJs = swc.transpile(code, ts2jsOptions).code
+      Timber.tag(TAG).i("Transpiled JavaScript:\n%s", transpiledJs)
 
       val logger = mainRuntime.v8Scope.createV8ValueObject().apply { bind(ScriptLogger.Main) }
-      mainRuntime.globalObject.set("logger", logger)
+      mainRuntime.globalObject.set(ScriptLogger.OBJECT_NAME, logger)
 
-      mainRuntime.getExecutor(jsMainCode)
-        .setResourceName("main.js")
+      mainRuntime.getExecutor(transpiledJs)
+        .setResourceName(MAIN_SCRIPT_NAME)
         .compileV8Script()
-        .executeVoid()
 
       Timber.tag(TAG).i("Main runtime initialized.")
     }

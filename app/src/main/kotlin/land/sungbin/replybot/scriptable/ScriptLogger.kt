@@ -30,5 +30,7 @@ class ScriptLogger(private val tag: String) : IJavetLogger {
   companion object {
     val Main = ScriptLogger("main.js") // for public usage
     val V8Runner = ScriptLogger("v8-runner") // for v8 host
+
+    const val OBJECT_NAME = "logger"
   }
 }
