@@ -7,25 +7,16 @@
   ],
   "packageRules": [
     {
-      "groupName": "Kotlin and KSP",
-      "groupSlug": "kotlin",
-      "matchPackagePrefixes": [
-        "com.google.devtools.ksp",
-      ],
-      "matchPackagePatterns": [
-        "org.jetbrains.kotlin.*",
-      ],
+      "description": "Allow Unstable and Automerge Everything",
+      "matchPackagePatterns": ["*"],
+      "ignoreUnstable": false,
+      "automerge": true,
     },
     {
-      "description": "Automatically merge minor and patch-level updates",
-      "matchUpdateTypes": [
-        "minor",
-        "patch",
-        "digest",
-      ],
-      "automerge": true,
-      "automergeStrategy": "rebase",
-      "platformAutomerge": true,
+      "groupName": "Kotlin and KSP",
+      "groupSlug": "kotlin",
+      "matchPackagePrefixes": ["com.google.devtools.ksp"],
+      "matchPackagePatterns": ["org.jetbrains.kotlin.*"],
     },
   ],
 }
