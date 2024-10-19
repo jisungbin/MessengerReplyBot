@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 package land.sungbin.replybot
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings.Secure
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -31,11 +34,7 @@ import com.multiplatform.webview.web.WebContent
 import com.multiplatform.webview.web.WebViewState
 import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.sebaslogen.resaca.rememberScoped
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import land.sungbin.replybot.components.AceEditorAssetPath
+import land.sungbin.replybot.ace.AceEditorAssetPath
 import land.sungbin.replybot.components.AppContent
 import land.sungbin.replybot.components.AppNavigationBar
 import land.sungbin.replybot.components.AppNavigationItem
@@ -43,13 +42,10 @@ import land.sungbin.replybot.components.AppTopBar
 import land.sungbin.replybot.components.EditorType
 import land.sungbin.replybot.components.GlobalAction
 import land.sungbin.replybot.configuration.AppConfiguration
-import land.sungbin.replybot.scriptable.ScriptRunner
+import land.sungbin.replybot.scriptable.ScriptRunner.initializeMain
 import land.sungbin.replybot.util.getCurrentCode
 import land.sungbin.replybot.util.getEditorDirectory
-import land.sungbin.replybot.util.hasNotificationAccessPermission
-import land.sungbin.replybot.util.requestNotificationAccessPermission
 import okio.FileSystem
-import okio.Path
 import okio.Path.Companion.toPath
 
 class MainActivity : ComponentActivity() {
@@ -63,7 +59,8 @@ class MainActivity : ComponentActivity() {
       directory = getDir(SETTINGS_DIRECTORY, MODE_PRIVATE).absolutePath.toPath(),
     )
 
-    if (!hasNotificationAccessPermission()) requestNotificationAccessPermission()
+    if (!hasNotificationAccessPermission())
+      startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
 
     setContent {
       val (navigationItem, updateNavigationItem) = rememberScoped { mutableStateOf<AppNavigationItem>(AppNavigationItem.Editors) }
@@ -95,7 +92,10 @@ class MainActivity : ComponentActivity() {
                     editorType.saveCode(code, editorDirectory)
                     initializeMain(code)
                   }
-                  GlobalAction.Save -> editorType.saveCode(code, editorDirectory)
+                  GlobalAction.Save -> {
+                    editorType.saveCode(code, editorDirectory)
+                    toast(getString(R.string.main_toast_saved))
+                  }
                   else -> println("TODO: $action")
                 }
               },
@@ -126,32 +126,15 @@ class MainActivity : ComponentActivity() {
     }
   }
 
+  private fun toast(message: String): Toast =
+    Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).also(Toast::show)
+
+  private fun hasNotificationAccessPermission(): Boolean =
+    Secure.getString(applicationContext.contentResolver, "enabled_notification_listeners")
+      .contains(applicationContext.packageName)
+
   companion object {
     private const val SETTINGS_DIRECTORY = "settings"
-  }
-}
-
-private fun EditorType.saveCode(
-  code: String,
-  editorDirectory: Path,
-) {
-  // Suppresses code save failures caused by the lifecycle termination.
-  @OptIn(DelicateCoroutinesApi::class)
-  GlobalScope.launch(Dispatchers.IO) {
-    FileSystem.SYSTEM.write(editorDirectory.resolve(filename)) {
-      writeUtf8(code)
-    }
-  }
-}
-
-private fun initializeMain(code: String) {
-  // The code runs in a Service, so it should follow the Process lifecycle.
-  @OptIn(DelicateCoroutinesApi::class)
-  GlobalScope.launch(Dispatchers.Default) {
-    ScriptRunner.initializeMain(code).onFailure {
-      it.printStackTrace()
-      println(it)
-    }
   }
 }
 

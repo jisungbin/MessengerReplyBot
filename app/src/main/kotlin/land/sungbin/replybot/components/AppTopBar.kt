@@ -22,7 +22,7 @@ enum class GlobalAction(
   val availableOn: Set<AppNavigationItem>,
 ) {
   Reload(
-    R.drawable.ic_round_cached_24,
+    R.drawable.ic_round_refresh_24,
     requiresCode = true,
     availableOn = setOf(AppNavigationItem.Editors),
   ),

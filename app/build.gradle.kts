@@ -53,7 +53,6 @@ dependencies {
   implementation(libs.compose.uiutil)
   implementation(libs.compose.material3)
   implementation(libs.compose.resaca)
-  implementation(libs.compose.webview)
 
   implementation(libs.kotlin.coroutines)
   implementation(libs.kotlin.immutableCollections)

@@ -16,7 +16,6 @@ compose-activity = "1.10.0-alpha02"
 compose-uiutil = "1.8.0-alpha04"
 compose-material3 = "1.4.0-alpha02"
 compose-resaca = "4.3.3"
-compose-webview = "1.9.40-alpha03"
 
 okio = "3.9.1"
 okhttp = "5.0.0-alpha.14"
@@ -49,7 +48,6 @@ compose-activity = { module = "androidx.activity:activity-compose", version.ref 
 compose-uiutil = { module = "androidx.compose.ui:ui-util", version.ref = "compose-uiutil" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
 compose-resaca = { module = "io.github.sebaslogen:resaca", version.ref = "compose-resaca" }
-compose-webview = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "compose-webview" }
 
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp" }
