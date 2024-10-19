@@ -23,7 +23,7 @@ okhttp = "5.0.0-alpha.14"
 moshi = "1.15.1"
 timber = "5.0.1"
 
-javet = "3.1.8"
+javet = "4.0.0"
 swc4j = "1.1.0"
 
 spotless = "6.25.0"
